@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LM Hub | Premium Access</title>
+    <style>
+        /* --- පොදු ස්ටයිල්ස් (Global Styles) --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; transition: all 0.3s ease; }
+        
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* --- 1. ලෝඩින් ස්ක්‍රීන් එක (Loading Screen) --- */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0f172a;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .coin-wrapper {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin-bottom: 30px;
+        }
+
+        .main-icon {
+            font-size: 60px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            filter: drop-shadow(0 0 20px #38bdf8);
+        }
+
+        .pulse-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px solid #38bdf8;
+            border-radius: 50%;
+            animation: pulse-ring 1.5s ease-out infinite;
+        }
+
+        .loader-container {
+            width: 250px;
+            text-align: center;
+        }
+
+        .bar-bg {
+            width: 100%;
+            height: 6px;
+            background: rgba(56, 189, 248, 0.1);
+            border-radius: 20px;
+            margin-top: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+
+        .bar-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #38bdf8, #10b981);
+            box-shadow: 0 0 15px #38bdf8;
+            animation: load-bar 3s linear forwards;
+        }
+
+        .info-text {
+            font-size: 13px;
+            color: #94a3b8;
+            letter-spacing: 2px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        /* --- 2. ප්‍රධාන පිටුවේ ස්ටයිල්ස් (Main Shop Content) --- */
+        #main-content {
+            width: 100%;
+            display: none; /* මුලින්ම හංගලා තියෙන්නේ */
+            opacity: 0;
+            padding-bottom: 90px;
+        }
+
+        .header {
+            background: linear-gradient(to right, #1e293b, #0f172a);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #334155;
+            width: 100%;
+        }
+        .header h1 { font-size: 1.4rem; margin: 0; color: #38bdf8; letter-spacing: 1px; }
+        .header h6 { font-size: 0.8rem; margin: 5px 0 0 0; color: #94a3b8; }
+
+        .container { padding: 15px; max-width: 500px; margin: auto; width: 100%; }
+
+        .card {
+            background: #1e293b;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #334155;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .card h2 { font-size: 1.1rem; color: #94a3b8; margin-top: 0; margin-bottom: 15px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+
+        .price-item {
+            background: #0f172a;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #334155;
+        }
+
+        .price-info b { font-size: 1.2rem; color: #38bdf8; display: block; }
+        .price-info span { font-size: 0.85rem; color: #94a3b8; }
+
+        .buy-btn {
+            background: #38bdf8;
+            color: #0f172a;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 800;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .buy-btn:active { transform: scale(0.95); }
+
+        /* Special Neon Glow (Rs. 500 Package) */
+        .special-glow {
+            position: relative;
+            background: #0f172a !important;
+            z-index: 1;
+            overflow: hidden;
+            border: none !important;
+        }
+
+        .glow-border {
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(transparent, #003cff, transparent 30%);
+            animation: rotateGlow 3s linear infinite;
+            z-index: -2;
+        }
+
+        .special-glow::after {
+            content: '';
+            position: absolute;
+            inset: 3px;
+            background: #111827;
+            border-radius: 10px;
+            z-index: -1;
+        }
+
+        .special-glow::before {
+            content: 'SPECIAL';
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            background: #00ff55;
+            color: #000;
+            font-size: 9px;
+            font-weight: 900;
+            padding: 2px 8px;
+            border-radius: 5px;
+            z-index: 2;
+        }
+
+        /* Best Offer Style */
+        .best-offer { border: 1px solid #8d9492; background: rgba(16, 185, 129, 0.05); }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #111827;
+            height: 75px;
+            display: flex;
+            justify-content: space-between; 
+            align-items: center;
+            border-top: 2px solid #3b82f6;
+            z-index: 1000;
+            padding: 0 60px; 
+        }
+
+        .nav-item {
+            text-decoration: none;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .nav-icon { font-size: 24px; }
+        .nav-text { font-size: 11px; font-weight: bold; margin-top: 2px; color: #38bdf8; }
+
+        /* --- ඇනිමේෂන්ස් (Animations) --- */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.5); opacity: 0.8; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+
+        @keyframes load-bar {
+            to { width: 100%; }
+        }
+
+        @keyframes rotateGlow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .exit-anim {
+            animation: exit-anim 0.6s forwards;
+        }
+        @keyframes exit-anim { 
+            to { opacity: 0; transform: translateY(20px); } 
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease forwards;
+        }
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loading-screen">
+        <div class="coin-wrapper">
+            <div class="pulse-ring"></div>
+            <div class="main-icon">💎</div>
+        </div>
+
+        <div class="loader-container" id="loader">
+            <div class="info-text" id="status">Loading Shop...</div>
+            <div class="bar-bg">
+                <div class="bar-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-content">
+        <div class="header">
+            <h1>LM HUB BOT SYSTEM</h1>
+            <h6>Developed for Lakmina Bot Users © 2026</h6>
+        </div>
+
+        <div class="container">
+            <div class="card">
+                <h2>බෝට්ගේ විස්තර ටිකක්</h2>
+                <div style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.6;">
+                    • 🗑️ Delete (Recovery)<br>
+                    • 🟢 AlwaysOnline (Presence)<br>
+                    • 🎵 Convert (Media)<br>
+                    • 💚 AutoLike (Status Reactor)
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>පැකේජය තෝරන්න (Select Plan)</h2>
+
+                <div class="price-item">
+                    <div class="price-info"><b>Rs. 200</b><span>සතියකට (1 Week)</span></div>
+                    <button class="buy-btn" onclick="order('Rs. 200 - 1 Week')">BUY</button>
+                </div>
+
+                <div class="price-item special-glow">
+                    <div class="glow-border"></div>
+                    <div class="price-info">
+                        <b style="color: #10b981;">Rs. 500</b>
+                        <span style="color: #10b981; font-size: 0.85rem; display: block; font-weight: bold;">මාසයකට (1 Month)</span>
+                    </div>
+                    <button class="buy-btn" onclick="order('Rs. 500 - 1 Month')">BUY</button>
+                </div>
+
+                <div class="price-item">
+                    <div class="price-info"><b>Rs. 750</b><span>මාස 2කට (2 Months)</span></div>
+                    <button class="buy-btn" onclick="order('Rs. 750 - 2 Months')">BUY</button>
+                </div>
+
+                <div class="price-item">
+                    <div class="price-info"><b>Rs. 900</b><span>මාස 3කට (3 Months)</span></div>
+                    <button class="buy-btn" onclick="order('Rs. 900 - 3 Months')">BUY</button>
+                </div>
+
+                <div class="price-item">
+                    <div class="price-info"><b>Rs. 1200</b><span>මාස 4කට (4 Months)</span></div>
+                    <button class="buy-btn" onclick="order('Rs. 1200 - 4 Months')">BUY</button>
+                </div>
+
+                <div class="price-item best-offer">
+                    <div class="price-info"><b>Rs. 1600</b><span>මාස 5කට (5 Months)</span></div>
+                    <button class="buy-btn" onclick="order('Rs. 1600 - 5 Months')">BUY</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-text">HOME</span>
+            </a>
+
+            <a href="F:/L\Bot-Settings/index.html" class="nav-item">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-text">Bot</span>
+            </a>
+
+            <a href="https://lakmina348.github.io/-/" class="nav-item">
+                <span class="nav-icon">👤</span>
+                <span class="nav-text">Admin</span>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // තත්පර 1.5 කින් ලෝඩින් මැසේජ් එක වෙනස් කිරීම
+        setTimeout(() => {
+            const statusText = document.getElementById('status');
+            if(statusText) {
+                statusText.innerText = "Fetching Best Offers...";
+                statusText.style.color = "#10b981";
+            }
+        }, 1500);
+
+        // තත්පර 3 කින් ලෝඩින් එක ඉවත් කර ප්‍රධාන ශොප් එක පෙන්වීම
+        setTimeout(() => {
+            const loader = document.getElementById('loader');
+            const loadingScreen = document.getElementById('loading-screen');
+            const mainContent = document.getElementById('main-content');
+
+            if(loader) loader.parentElement.classList.add('exit-anim');
+            
+            setTimeout(() => {
+                if(loadingScreen) loadingScreen.style.display = 'none'; // ලෝඩින් එක සම්පූර්ණයෙන්ම වහනවා
+                if(mainContent) {
+                    mainContent.style.display = 'block'; // ශොප් එක ඕපන් කරනවා
+                    mainContent.classList.add('fade-in');
+                }
+                // body එකේ සෙන්ටර් සෙටින්ග්ස් වෙනස් කරනවා ශොප් එක ලස්සනට පේන්න
+                document.body.style.justifyContent = 'flex-start';
+            }, 600);
+        }, 3000);
+
+        // වට්ස්ඇප් ඕඩර් ක්‍රියාවලිය
+        function order(planDetails) {
+            const phone = "+94788637885";
+            const msg = encodeURIComponent("Hello! I want to buy the LM Hub Bot package: " + planDetails + ". Please send me the details.");
+            window.location.href = "https://wa.me/" + phone + "?text=" + msg;
+        }
+    </script>
+</body>
+</html>
